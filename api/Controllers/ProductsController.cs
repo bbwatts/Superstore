@@ -58,6 +58,29 @@ public class ProductsController : ControllerBase
             return StatusCode(500, "An error occurred while processing your request for the specified product.");
         }
     }
+    [HttpPost(Name = "CreateProduct")]
+    public async Task<IActionResult> Post([FromBody] Product product)
+    {
+        try
+        {
+            var parameters = new[]
+            {
+                new SqlParameter("@ProductName", product.ProductName),
+                new SqlParameter("@CategoryID", product.CategoryID),
+                new SqlParameter("@SubCategoryID", product.SubCategoryID),
+                new SqlParameter("@UnitPrice", product.UnitPrice),
+                new SqlParameter("@Quantity", product.Quantity)
+            };
+
+            int newProductId = await _db.ExecuteAsync("CreateProduct", parameters);
+            return Created();
+        }
+        catch (Exception ex)
+        {
+            // Log the exception (not shown here)
+            return StatusCode(500, $"An error occurred while processing your request to create a product: {ex.Message}");
+        }
+    }
 
     private static Product MapToProduct(Dictionary<string, object?> row) => new Product
     {
@@ -69,29 +92,5 @@ public class ProductsController : ControllerBase
         SubCategory = Convert.ToString(row["SubCategory"]) ?? string.Empty,
         UnitPrice = Convert.ToDecimal(row["UnitPrice"]),
         Quantity = Convert.ToInt32(row["Quantity"])
-    }
-    ;
-    [HttpPost(Name = "CreateProduct")]
-    public async Task<IActionResult> Post(Product product)
-    {
-        try
-        {
-            var parameters = new[]
-            {
-                new SqlParameter { ParameterName = "@ProductName", Value = product.ProductName },
-                new SqlParameter { ParameterName = "@CategoryID", Value = product.CategoryID },
-                new SqlParameter { ParameterName = "@SubCategoryID", Value = product.SubCategoryID },
-                new SqlParameter { ParameterName = "@UnitPrice", Value = product.UnitPrice },
-                new SqlParameter { ParameterName = "@Quantity", Value = product.Quantity }
-            };
-
-            await _db.ExecuteAsync("CreateProduct", parameters);
-            return Ok("Product created successfully.");
-        }
-        catch (Exception ex)
-        {
-            // Log the exception (not shown here)
-            return StatusCode(500, "An error occurred while processing your request to create a product.");
-        }
-    }
+    };
 }
