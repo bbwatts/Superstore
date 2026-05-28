@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import { read } from "../../api/fetch-wrapper";
+import { Link } from "react-router";
 
 const emptyForm = {
   productName: "",
   categoryID: "",
   subCategoryID: "",
   unitPrice: "",
-  quantity: "",
+  inventory: "",
 };
 
-export default function ProductForm({ initialValues = emptyForm }) {
+export default function ProductForm({ initialValues = emptyForm, onSubmit }) {
   const [form, setForm] = useState(initialValues);
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -21,7 +22,6 @@ export default function ProductForm({ initialValues = emptyForm }) {
     const fetchCategories = async () => {
       try {
         const data = await read("categories");
-        console.log("Fetched categories:", data);
         setCategories(data);
       } catch (err) {
         setError(err.message);
@@ -31,7 +31,6 @@ export default function ProductForm({ initialValues = emptyForm }) {
     const fetchSubCategories = async () => {
       try {
         const data = await read("subcategories");
-        console.log("Fetched subcategories:", data);
         setSubCategories(data);
       } catch (err) {
         setError(err.message);
@@ -42,9 +41,48 @@ export default function ProductForm({ initialValues = emptyForm }) {
     fetchSubCategories();
   }, []);
 
+  const handleChange = event => {
+    const { name, value } = event.target;
+    setForm(prevForm => ({
+      ...prevForm,
+      [name]: value
+    }));
+  };
+  const handleSubmit = async event => {
+    event.preventDefault();
+
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      await onSubmit({
+        productName: form.productName,
+        categoryID: parseInt(form.categoryID),
+        subCategoryID: parseInt(form.subCategoryID),
+        unitPrice: parseFloat(form.unitPrice),
+        inventory: parseInt(form.inventory)
+      });
+    }  catch (err) {
+        setError(err.message);
+      } finally {
+        setSubmitting(false);
+      }
+    }
+  };
+
   return (
-    <form>
+    <form onSubmit= {handleSubmit}>
       {error && <p style={{ color: "red" }}>{error}</p>}
+      <div>
+        <label for="productName">Product Name</label>
+        <input
+          type="text"
+          name="productName"
+          value={form.productName}
+          onChange={handleChange}
+          required
+        />
+      </div>
       <div>
         <label for="categoryID">Category</label>
         <select name="categoryID" value={form.categoryID} required>
@@ -71,6 +109,38 @@ export default function ProductForm({ initialValues = emptyForm }) {
           ))}
         </select>
       </div>
+
+      <div>
+        <label for="unitPrice">Unit Price</label>
+        <input
+          type="number"
+          name="unitPrice"
+          value={form.unitPrice}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
+      <div>
+        <label for="inventory">Inventory</label>
+        <input
+          type="number"
+          name="inventory"
+          min="0"
+          value={form.inventory}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
+      <button type="submit" disabled={submitting}>
+        {submitting ? "Submitting..." : "Submit"}
+      </button>
+      
+      <Link to={`/products/`}>
+      {product.productName}
+      <button>Cancel</button>
+      </Link>
     </form>
   );
 }

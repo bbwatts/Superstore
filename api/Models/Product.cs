@@ -7,5 +7,5 @@ public class Product
     public string Category { get; set; } = string.Empty;
     public string SubCategory { get; set; } = string.Empty;
     public decimal UnitPrice { get; set; }
-    public int Quantity { get; set; }
+    public int Inventory { get; set; }
 }

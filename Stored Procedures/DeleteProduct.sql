@@ -8,12 +8,12 @@ GO
 -- =============================================
 -- Author:		Blake Watts 
 -- Create date: 4/28/2026
--- Update date: 5/5/2026
+-- Update date: 5/26/2026
 -- Description:	Either going to Delete or Deactivate a product
 -- EXEC DeleteProduct @ProductID = 1
 -- EXEC DeleteProduct @ProductID = 1, @Delete = 1
 -- =============================================
-CREATE PROCEDURE [dbo].[DeleteProduct]
+ALTER PROCEDURE [dbo].[DeleteProduct]
 	@ProductID INT,
 	@Delete BIT = 0
 AS
@@ -30,12 +30,12 @@ BEGIN
 			END
 		ELSE 
 			BEGIN
-   				UPDATE dbo.Product
-				SET IsActive = 0, Quantity = 0
+ï¿½ï¿½ï¿½				UPDATE dbo.Product
+				SET IsActive = 0, Inventory = 0
 				WHERE ProductID = @ProductID;
 			END
 	END TRY
 	BEGIN CATCH
-   		SELECT ERROR_MESSAGE() AS ErrorMessage;
+ï¿½ï¿½ï¿½		SELECT ERROR_MESSAGE() AS ErrorMessage;
 	END CATCH;
 END

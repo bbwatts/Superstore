@@ -8,11 +8,11 @@ GO
 -- =============================================
 -- Author:		Blake Watts 
 -- Create date: 4/28/2026
--- Update date: 5/12/2026
+-- Update date: 5/26/2026
 -- Description:	Update a Product
 -- EXEC UpdateProduct @ProductID = 1, @ProductName = 'New Product'
 -- EXEC UpdateProduct @ProductID = 1, @ProductName = 'New Product', @CategoryID = 1,
--- EXEC UpdateProduct @ProductID = 1, @ProductName = 'New Product', @CategoryID = 1, @SubCategoryID = 1, @UnitPrice = 0.00, @Quantity = 10
+-- EXEC UpdateProduct @ProductID = 1, @ProductName = 'New Product', @CategoryID = 1, @SubCategoryID = 1, @UnitPrice = 0.00, @Inventory = 10
 -- =============================================
 ALTER PROCEDURE [dbo].[UpdateProduct]
 	@ProductID INT,
@@ -20,7 +20,7 @@ ALTER PROCEDURE [dbo].[UpdateProduct]
 	@CategoryID INT = NULL,
 	@SubCategoryID INT = NULL,
     @UnitPrice DECIMAL(18,2) = NULL,
-	@Quantity INT = NULL
+	@Inventory INT = NULL
 AS
 BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from
@@ -33,7 +33,7 @@ BEGIN
             CategoryID = COALESCE(@CategoryID, CategoryID),
             SubCategoryID = COALESCE(@SubCategoryID, SubCategoryID),
             UnitPrice = COALESCE(@UnitPrice, UnitPrice),
-			Quantity = COALESCE(@Quantity, Quantity)
+			Inventory = COALESCE(@Inventory, Inventory)
         WHERE ProductID = @ProductID;
 	END TRY
 	BEGIN CATCH

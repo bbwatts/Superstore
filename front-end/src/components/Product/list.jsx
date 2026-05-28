@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
-import { read } from "../../api/fetch-wrapper";
-import { Link } from "react-router";
+import { read, del} from "../../api/fetch-wrapper";
+import { Link, useNavigate } from "react-router";
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const data = await read("Products");
+        const data = await read("products");
         setProducts(data);
       } catch (err) {
         setError(err.message);
@@ -23,9 +25,29 @@ export default function ProductList() {
     fetchProducts();
   }, []);
 
-  const handleDelete = async (productId) => {
-    console.log(`Delete product with ID: ${productId}`);
-    // Implement delete functionality here
+  const handleDelete = async (productID) => {
+    const proceed = window.confirm(
+      "Are you sure you want to delete this product?"
+    );
+
+    if (!proceed) return;
+
+    const permanent = window.confirm(
+      "Click OK to permanently delete this product."
+    );
+    try {
+      setDeleting(true);
+      const res =await del(`products/${productID}?permanent=${permanent}`);
+      if (res.ok) {
+        navigate("/products");
+      }
+    }
+    catch (err) {
+      setError(err.message);
+    }
+    finally {
+      setDeleting(false);
+    }
   };
 
   if (loading) return <div>Loading...</div>;
@@ -35,7 +57,7 @@ export default function ProductList() {
   return (
     <div>
       <h2>Products</h2>
-      <Link to={'/products/add'}>
+      <Link to={`/products/add`}>
         <button>Add Product</button>
       </Link>
       {products.length === 0 ? (
@@ -66,7 +88,9 @@ export default function ProductList() {
                   <Link to={`/products/${product.productID}/edit`}>
                     <button>Edit</button>
                   </Link>
-                  <button onClick={() => handleDelete(product.productID)}>Delete</button>
+                  <button onClick={() => handleDelete(product.productID)}>
+                    {deleting ? "Deleting..." : "Delete"}
+                  </button>
                 </td>
               </tr>
             ))}

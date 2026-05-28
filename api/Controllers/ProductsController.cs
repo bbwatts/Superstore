@@ -17,37 +17,31 @@ public class ProductsController : ControllerBase
         _db = db;
     }
     
-    [HttpGet(Name = "GetProducts")]
+    [HttpGet(Name = "GetAllProducts")]
     public async Task<IActionResult> Get()
     {
         try
         {
-            var row = await _db.QuerySingleAsync("GetProducts");
-            if (row == null)
-            {
-                return NotFound("No products found.");
-            }
+            List<Dictionary<string, object?>> rows = await _db.QueryAsync("GetProducts");
 
-            Product product = MapToProduct(row);
-            return Ok(product  );
+            List<Product> products = rows.Select(MapToProduct).ToList();
+            return Ok(products);
         }
         catch (Exception ex)
         {
             // Log the exception (not shown here)
-            return StatusCode(500, "An error occurred while processing your request for all products.");
+            return StatusCode(500, $"An error occurred while processing your request for all products: {ex.Message}");
         }
     }
 
-    [HttpGet("{id}", Name = "GetProductsByID")]
+    [HttpGet("{id}", Name = "GetProductById")]
     public async Task<IActionResult> Get(int id)
     {
         try
         {
-            var row = await _db.QuerySingleAsync("GetProductsByID", new SqlParameter { ParameterName = "@ProductID", Value = id });
+            var row = await _db.QuerySingleAsync("GetProduct", new SqlParameter("@ProductID", id));
             if (row == null)
-            {
-                return NotFound("Product not found.");
-            }
+                return NotFound();
 
             Product product = MapToProduct(row);
             return Ok(product);
@@ -55,9 +49,10 @@ public class ProductsController : ControllerBase
         catch (Exception ex)
         {
             // Log the exception (not shown here)
-            return StatusCode(500, "An error occurred while processing your request for the specified product.");
+            return StatusCode(500, $"An error occurred while processing your request for the product: {ex.Message}");
         }
     }
+
     [HttpPost(Name = "CreateProduct")]
     public async Task<IActionResult> Post([FromBody] Product product)
     {
@@ -69,7 +64,7 @@ public class ProductsController : ControllerBase
                 new SqlParameter("@CategoryID", product.CategoryID),
                 new SqlParameter("@SubCategoryID", product.SubCategoryID),
                 new SqlParameter("@UnitPrice", product.UnitPrice),
-                new SqlParameter("@Quantity", product.Quantity)
+                new SqlParameter("@Inventory", product.Inventory)
             };
 
             int newProductId = await _db.ExecuteAsync("CreateProduct", parameters);
@@ -82,6 +77,52 @@ public class ProductsController : ControllerBase
         }
     }
 
+    [HttpPut("{id}", Name = "UpdateProduct")]
+    public async Task<IActionResult> Put(int id, [FromBody] Product product)
+    {
+        try
+        {
+            var parameters = new[]
+            {
+                new SqlParameter("@ProductID", id),
+                new SqlParameter("@ProductName", product.ProductName),
+                new SqlParameter("@CategoryID", product.CategoryID),
+                new SqlParameter("@SubCategoryID", product.SubCategoryID),
+                new SqlParameter("@UnitPrice", product.UnitPrice),
+                new SqlParameter("@Inventory", product.Inventory)
+            };
+
+            int newProductId = await _db.ExecuteAsync("UpdateProduct", parameters);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            // Log the exception (not shown here)
+            return StatusCode(500, $"An error occurred while processing your request to update a product: {ex.Message}");
+        }
+    }
+
+    [HttpDelete("{id}", Name = "DeleteProduct")]
+    public async Task<IActionResult> Delete(int id, [FromQuery] bool permanent)
+    {
+        try
+        {
+            var parameters = new[]
+            {
+                new SqlParameter("@ProductID", id),
+                new SqlParameter("@Delete", permanent)
+            };
+
+            await _db.ExecuteAsync("DeleteProduct", parameters);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            // Log the exception (not shown here)
+            return StatusCode(500, $"An error occurred while processing your request to delete a product: {ex.Message}");
+        }
+    }
+
     private static Product MapToProduct(Dictionary<string, object?> row) => new Product
     {
         ProductID = Convert.ToInt32(row["ProductID"]),
@@ -91,6 +132,6 @@ public class ProductsController : ControllerBase
         Category = Convert.ToString(row["Category"]) ?? string.Empty,
         SubCategory = Convert.ToString(row["SubCategory"]) ?? string.Empty,
         UnitPrice = Convert.ToDecimal(row["UnitPrice"]),
-        Quantity = Convert.ToInt32(row["Quantity"])
+        Inventory = Convert.ToInt32(row["Inventory"])
     };
 }

@@ -7,7 +7,7 @@ GO
 -- =============================================
 -- Author:		Blake Watts	
 -- Create date: 4/28/2026
--- Update date: 5/7/2026
+-- Update date: 5/26/2026
 -- Description:	Get all Products
 -- EXEC GetProducts
 -- =============================================
@@ -19,7 +19,7 @@ BEGIN
 	SET NOCOUNT ON;
 
     BEGIN TRY
-   		
+ï¿½ï¿½ï¿½		
 		SELECT TOP 100 ProductID,
 			ProductName,
 			p.CategoryID,
@@ -28,7 +28,7 @@ BEGIN
 			sc.SubCategory
 			UnitPrice,
 			ProductKey,
-			Quantity
+			Inventory
 			FROM dbo.Product AS p
 			JOIN dbo.Category AS c
 			ON p.CategoryID = c.CategoryID
@@ -37,6 +37,6 @@ BEGIN
 			WHERE IsActive = 1
 	END TRY
 	BEGIN CATCH
-   		SELECT ERROR_MESSAGE() AS ErrorMessage;
+ï¿½ï¿½ï¿½		SELECT ERROR_MESSAGE() AS ErrorMessage;
 	END CATCH;
 END
