@@ -46,7 +46,7 @@ BEGIN
 			RETURN;
 		END
 
-���		INSERT INTO dbo.Product(ProductName, CategoryID, SubCategoryID, UnitPrice, Inventory)
+		INSERT INTO dbo.Product(ProductName, CategoryID, SubCategoryID, UnitPrice, Inventory)
 		VALUES(@ProductName, @CategoryID, @SubCategoryID, @UnitPrice, @Inventory);
 
 		--Return the newly created product
@@ -55,9 +55,8 @@ BEGIN
 		--Return the newly created product 
 		EXEC GetProduct @ProductID = @NewProductID
 
-		EXEC GetProduct @ProductID = CAST(SCOPE_IDENTITY() AS INT);
 	END TRY
 	BEGIN CATCH
-���		SELECT ERROR_MESSAGE() AS ErrorMessage;
+		SELECT ERROR_MESSAGE() AS ErrorMessage;
 	END CATCH;
 END

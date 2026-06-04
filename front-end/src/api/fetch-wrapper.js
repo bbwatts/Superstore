@@ -1,7 +1,6 @@
 const BASE_API_URL = process.env.REACT_APP_BASE_API_URL;
 
-
-export function create(endpoint, data) {
+export async function create(endpoint, data) {
   const response = await fetch(`${BASE_API_URL}/${endpoint}`, {
     method: "POST",
     headers: {

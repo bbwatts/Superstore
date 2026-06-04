@@ -62,11 +62,10 @@ export default function ProductForm({ initialValues = emptyForm, onSubmit }) {
         unitPrice: parseFloat(form.unitPrice),
         inventory: parseInt(form.inventory)
       });
-    }  catch (err) {
-        setError(err.message);
-      } finally {
-        setSubmitting(false);
-      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -85,7 +84,7 @@ export default function ProductForm({ initialValues = emptyForm, onSubmit }) {
       </div>
       <div>
         <label for="categoryID">Category</label>
-        <select name="categoryID" value={form.categoryID} required>
+        <select name="categoryID" value={form.categoryID} onChange={handleChange} required>
           <option value="">Select a category</option>
           {categories.map((category) => (
             <option key={category.categoryID} value={category.categoryID}>
@@ -97,7 +96,7 @@ export default function ProductForm({ initialValues = emptyForm, onSubmit }) {
 
       <div>
         <label for="subCategoryID">Subcategory</label>
-        <select name="subCategoryID" value={form.subCategoryID} required>
+        <select name="subCategoryID" value={form.subCategoryID} onChange={handleChange} required>
           <option value="">Select a subcategory</option>
           {subCategories.map((subCategory) => (
             <option
@@ -115,6 +114,7 @@ export default function ProductForm({ initialValues = emptyForm, onSubmit }) {
         <input
           type="number"
           name="unitPrice"
+          step="0.01"
           value={form.unitPrice}
           onChange={handleChange}
           required
@@ -138,8 +138,8 @@ export default function ProductForm({ initialValues = emptyForm, onSubmit }) {
       </button>
       
       <Link to={`/products/`}>
-      {product.productName}
-      <button>Cancel</button>
+        {form.productName}
+        <button>Cancel</button>
       </Link>
     </form>
   );

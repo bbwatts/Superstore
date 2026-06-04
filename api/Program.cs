@@ -8,6 +8,18 @@ var builder = WebApplication.CreateBuilder(args);
 // Controllers ask for IDatabaseService; ASP.NET Core hands them a SQLDatabaseService.
 builder.Services.AddScoped<IDatabaseService, SQLDatabaseService>();
 
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -20,16 +32,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-var allowedOrigins = 
-    builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? 
-    Array.Empty<string>();
-
-app.UseCors(policy =>
-    policy.WithOrigins(allowedOrigins)
-          .AllowAnyHeader()
-          .AllowAnyMethod());
-
-          
+app.UseCors();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
